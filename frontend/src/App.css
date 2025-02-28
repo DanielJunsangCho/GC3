@@ -12,38 +12,114 @@
   text-align: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.enhanced-app-container {
+  font-family: Arial, sans-serif;
+  padding: 2rem;
+  background-color: #f5f7fa;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.app-header {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #2c3e50;
+  margin-bottom: 2rem;
+  text-align: center;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.status-banner {
+  background-color: #eaf6ff;
+  padding: 1rem;
+  border-radius: 8px;
+  color: #2c82c9;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 1.5rem;
 }
 
-.card {
-  padding: 2em;
+.file-actions, .saved-files-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
 }
 
-.read-the-docs {
+.file-input {
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.upload-btn {
+  background-color: #4caf50;
+  color: white;
+}
+.upload-btn:hover { background-color: #45a049; }
+
+.save-btn {
+  background-color: #2196f3;
+  color: white;
+}
+.save-btn:hover { background-color: #1976d2; }
+
+.load-btn {
+  background-color: #ffa500;
+  color: white;
+}
+.load-btn:hover { background-color: #e69500; }
+
+.clear-btn {
+  background-color: #ff4d4d;
+  color: white;
+}
+.clear-btn:hover { background-color: #cc0000; }
+
+.spectrogram-img {
+  max-width: 100%;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  border: 2px solid #e0e0e0;
+}
+
+.saved-files {
+  background-color: #fff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.file-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.file-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border-bottom: 1px solid #e0e0e0;
+  color: #333;
+}
+
+.file-item:last-child {
+  border-bottom: none;
+}
+
+.no-files {
+  text-align: center;
+  font-style: italic;
   color: #888;
 }
