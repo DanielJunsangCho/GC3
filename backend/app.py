@@ -310,10 +310,21 @@ def create_app():
 
         transmitters = []
         center_freq = cols // 2  # Center frequency bin
+
+        def is_overlapping(start_time, start_freq):
+            for t_start, f_start in transmitters:
+                if (start_time < t_start + active_time and start_time + active_time > t_start and
+                    start_freq < f_start + bandwidth and start_freq + bandwidth > f_start):
+                    return True
+            return False
+
         for _ in range(num_transmitters):
-            start_time = np.random.randint(0, rows - active_time + 1)
-            start_freq = center_freq - (bandwidth // 2)  # Center the transmitter around the middle frequency
-            transmitters.append((start_time, start_freq))
+            while True:
+                start_time = np.random.randint(0, rows - active_time + 1)
+                start_freq = center_freq - (bandwidth // 2)  # Center the transmitter around the middle frequency
+                if not is_overlapping(start_time, start_freq):
+                    transmitters.append((start_time, start_freq))
+                    break
 
             # Inject the transmitter signal
             for t in range(start_time, start_time + active_time):
@@ -321,8 +332,6 @@ def create_app():
                     signal = np.random.normal(loc=transmitter_mean, scale=transmitter_sd)
                     matrix[t][f] += signal
 
-        # Save the data matrix to a CSV file
-        np.savetxt(matrix_filename, matrix, delimiter=',')
 
         # Save the transmitters to a CSV file
         with open(transmitters_filename, 'w', newline='') as csvfile:
@@ -336,10 +345,9 @@ def create_app():
         # Generate and return the plot as base64
         plt.figure(figsize=(10, 6))
         plt.imshow(matrix, aspect='auto', cmap='viridis')
-        plt.colorbar(label='Signal Strength')
         plt.title('Generated Data Matrix')
-        plt.xlabel('Frequency Bin')
-        plt.ylabel('Time Bin')
+        plt.xlabel("Frequency")
+        plt.ylabel("Time")
         buf = io.BytesIO()
         plt.savefig(buf, format='png')
         plt.close()
