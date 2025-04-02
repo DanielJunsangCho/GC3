@@ -304,7 +304,7 @@ def create_app():
             print("Error clearing files:", e)
             return jsonify({'error': str(e)}), 500
         
-    def generate_data(rows, cols, num_transmitters, transmitter_mean, transmitter_sd, noise_mean, noise_sd, bandwidth, active_time, matrix_filename, transmitters_filename):
+    def generate_data(rows, cols, num_transmitters, transmitter_mean, transmitter_sd, noise_mean, noise_sd, bandwidth, active_time, placement_method):
         # Generate the background noise matrix
         matrix = np.random.normal(loc=noise_mean, scale=noise_sd, size=(rows, cols))
 
@@ -318,29 +318,30 @@ def create_app():
                     return True
             return False
 
-        for _ in range(num_transmitters):
-            while True:
-                start_time = np.random.randint(0, rows - active_time + 1)
-                start_freq = center_freq - (bandwidth // 2)  # Center the transmitter around the middle frequency
-                if not is_overlapping(start_time, start_freq):
-                    transmitters.append((start_time, start_freq))
-                    break
+        if placement_method == "random":
+            for _ in range(num_transmitters):
+                while True:
+                    start_time = np.random.randint(0, rows - active_time + 1)
+                    start_freq = center_freq - (bandwidth // 2)  # Center the transmitter around the middle frequency
+                    if not is_overlapping(start_time, start_freq):
+                        transmitters.append((start_time, start_freq))
+                        break
+        elif placement_method == "equally_spaced":
+            # Calculate the margin and spacing
+            margin = rows // (num_transmitters + 1)  # Leave equal margins at the top and bottom
+            spacing = (rows - 2 * margin) // (num_transmitters - 1)  # Space transmitters evenly within the remaining space
 
-            # Inject the transmitter signal
+            for i in range(num_transmitters):
+                start_time = margin + i * spacing
+                start_freq = center_freq - (bandwidth // 2)  # Center the transmitter around the middle frequency
+                transmitters.append((start_time, start_freq))
+
+        # Inject the transmitter signal
+        for start_time, start_freq in transmitters:
             for t in range(start_time, start_time + active_time):
                 for f in range(start_freq, start_freq + bandwidth):
                     signal = np.random.normal(loc=transmitter_mean, scale=transmitter_sd)
                     matrix[t][f] += signal
-
-
-        # Save the transmitters to a CSV file
-        with open(transmitters_filename, 'w', newline='') as csvfile:
-            writer = csv.writer(csvfile)
-            writer.writerow(['Start Time', 'Start Frequency'])
-            writer.writerows(transmitters)
-
-        print(f"Data matrix saved to {matrix_filename}")
-        print(f"Transmitters saved to {transmitters_filename}")
 
         # Generate and return the plot as base64
         plt.figure(figsize=(10, 6))
@@ -367,12 +368,11 @@ def create_app():
         noise_sd = data['noiseSd']
         bandwidth = data['bandwidth']
         active_time = data['activeTime']
-        matrix_filename = data['matrixFilename']
-        transmitters_filename = data['transmittersFilename']
+        placement_method = data['placementMethod']  # New parameter
 
         try:
             plot_data = generate_data(rows, cols, num_transmitters, transmitter_mean, transmitter_sd, noise_mean, noise_sd,
-                                      bandwidth, active_time, matrix_filename, transmitters_filename)
+                                    bandwidth, active_time, placement_method)
             return jsonify({'message': 'Data generated successfully', 'plot': plot_data}), 200
         except Exception as e:
             return jsonify({'error': str(e)}), 500
