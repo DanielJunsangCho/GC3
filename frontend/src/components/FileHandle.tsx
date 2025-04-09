@@ -6,7 +6,7 @@
  * @description This component is used to upload, view and manage files.
  */
 
-import { useState, useEffect, ChangeEvent } from 'react';
+import { useState, useEffect, ChangeEvent, useRef } from 'react';
 import '../App.css';
 import SavedFiles from './SavedFiles';
 
@@ -23,6 +23,8 @@ interface FileHandleProps {
 
 const FileHandle: React.FC<FileHandleProps> = ({ fileId, onFileSelect }) => {
   // State variables
+  const [verticalCursors, setVerticalCursors] = useState<number[]>([50, 150]); // Default positions for vertical cursors
+  const [horizontalCursors, setHorizontalCursors] = useState<number[]>([50, 150]); // Default positions for horizontal cursors
   const [currentFileId, setCurrentFileId] = useState<string | null>(fileId); // Track the currently selected file ID
   const [selectedCFile, setSelectedCFile] = useState<File | null>(null);
   const [selectedMetaFile, setSelectedMetaFile] = useState<File | null>(null);
@@ -32,6 +34,14 @@ const FileHandle: React.FC<FileHandleProps> = ({ fileId, onFileSelect }) => {
   const [selectedMetaFileName, setSelectedMetaFileName] = useState<string | null>(null);
   const [dots, setDots] = useState<string>(''); // Track the dots
 
+  const [maxTime, setMaxTime] = useState(10); // Example: 10 seconds
+  const [minFreq, setMinFreq] = useState(0); // Example: 0 Hz
+  const [maxFreq, setMaxFreq] = useState(1000); // Example: 1000 Hz
+  const spectrogramRef = useRef<HTMLDivElement | null>(null);
+  const left_padding = .125;
+  const right_padding = .01;
+  const top_padding = .1185;
+  const bottom_padding = .1086;
 
   // State for tab switching
   const [activeTab, setActiveTab] = useState<string>('spectrogram');
@@ -111,6 +121,15 @@ const FileHandle: React.FC<FileHandleProps> = ({ fileId, onFileSelect }) => {
         ...prevFiles,
         { _id: result.file_id, filename: selectedCFile.name }
       ]);
+
+      // Set max time and frequency range for cursor calculations
+      if (result.max_time && result.max_freq && result.min_freq) {
+        console.log("setting vars")
+        setMaxTime(result.max_time);
+        console.log(result.max_time)
+        setMaxFreq(result.max_freq);
+        setMinFreq(result.min_freq);
+      }
 
       // Immediately set spectrogram image
       if (result.spectrogram) {
@@ -274,9 +293,74 @@ const FileHandle: React.FC<FileHandleProps> = ({ fileId, onFileSelect }) => {
       setDots(""); // Stop dots animation for other messages
     }
   };
-  
-  
 
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>, index: number, type: 'vertical' | 'horizontal') => {
+    e.preventDefault(); // Prevent default browser behavior
+  
+    // Capture the bounding rectangle of the spectrogram container
+    const container = e.currentTarget.parentElement;
+    if (!container) return; // Ensure the container exists
+    const containerRect = container.getBoundingClientRect();
+  
+    const onMouseMove = (moveEvent: MouseEvent) => {
+      if (type === 'vertical') {
+        const newX = moveEvent.clientX - containerRect.left;
+        setVerticalCursors((prev) => {
+          const updated = [...prev];
+          updated[index] = Math.max(0, Math.min(newX, containerRect.width));
+          return updated;
+        });
+      } else if (type === 'horizontal') {
+        const newY = moveEvent.clientY - containerRect.top;
+        setHorizontalCursors((prev) => {
+          const updated = [...prev];
+          updated[index] = Math.max(0, Math.min(newY, containerRect.height));
+          return updated;
+        });
+      }
+    };
+  
+    const onMouseUp = () => {
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    };
+  
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  };
+
+  const getSpectrogramWidth = () => {
+    if (spectrogramRef.current) {
+      return spectrogramRef.current.getBoundingClientRect().width;
+    }
+    return 0; // Default to 0 if the container is not available
+  };
+
+  const getSpectrogramHeight = () => {
+    if (spectrogramRef.current) {
+      return spectrogramRef.current.getBoundingClientRect().height;
+    }
+    return 0; // Default to 0 if the container is not available
+  };
+
+  const calculateHorizontalCursorPosition = (position: number, maxTime: number) => {
+    const specgramHeight= getSpectrogramHeight();
+    const trueHeight = (1 - top_padding - bottom_padding)*specgramHeight
+    const padding_adjust = top_padding*specgramHeight
+    const adjusted_pos = position - padding_adjust
+    return (adjusted_pos / trueHeight) * maxTime;
+  };
+  
+  const calculateVerticalCursorPosition = (position: number, minFreq: number, maxFreq: number) => {
+    console.log(minFreq)
+    console.log(maxFreq)
+    const specgramWidth = getSpectrogramWidth();
+    const trueWidth = (1 - left_padding - right_padding)*specgramWidth
+    const padding_adjust = left_padding*specgramWidth 
+    const adjusted_pos = position - padding_adjust
+    return minFreq + (adjusted_pos / trueWidth)*(maxFreq - minFreq);
+  };
+  
   return (
     <main className="enhanced-app-container">
       {/* Status Banner */}
@@ -329,7 +413,7 @@ const FileHandle: React.FC<FileHandleProps> = ({ fileId, onFileSelect }) => {
       </div>
   
       {/* Tabbed Interface for Plots */}
-      { currentFileId ? (
+      {currentFileId ? (
         <div className="plot-container">
           <div className="tabs">
             {['spectrogram', 'time_domain', 'freq_domain', 'iq_plot'].map((tab) => (
@@ -342,20 +426,66 @@ const FileHandle: React.FC<FileHandleProps> = ({ fileId, onFileSelect }) => {
               </button>
             ))}
           </div>
-  
+
           {/* Display Selected Plot */}
           {plotImages[activeTab] ? (
-            <img
-              src={`data:image/png;base64,${plotImages[activeTab]}`}
-              alt={activeTab}
-              className="plot-image"
-            />
+            <div className="spectrogram-container" ref={spectrogramRef}>
+              <img
+                src={`data:image/png;base64,${plotImages[activeTab]}`}
+                alt={activeTab}
+                className="plot-image"
+              />
+
+              {/* Conditionally render cursors only for the spectrogram tab */}
+              {activeTab === 'spectrogram' && (
+                <>
+                  {/* Vertical Cursors */}
+                  {verticalCursors.map((x, index) => {
+                    const frequency = calculateVerticalCursorPosition(x, minFreq, maxFreq); 
+                    return (
+                      <div
+                        key={`vertical-${index}`}
+                        className="vertical-cursor"
+                        style={{ left: `${x}px` }}
+                        onMouseDown={(e) => handleMouseDown(e, index, 'vertical')}
+                      >
+                        <span className="cursor-label">{frequency.toFixed(2)} Hz</span>
+                      </div>
+                    );
+                  })}
+
+                  {/* Horizontal Cursors */}
+                  {horizontalCursors.map((y, index) => {
+                    const time = calculateHorizontalCursorPosition(y, maxTime); 
+                    return (
+                      <div
+                        key={`horizontal-${index}`}
+                        className="horizontal-cursor"
+                        style={{ top: `${y}px` }}
+                        onMouseDown={(e) => handleMouseDown(e, index, 'horizontal')}
+                      >
+                        <span className="cursor-label">{time.toFixed(2)} s</span>
+                      </div>
+                    );
+                  })}
+                </>
+              )}
+            </div>
           ) : (
             <p className="status-banner">Loading {activeTab}...</p>
           )}
         </div>
       ) : null}
-  
+
+      {/* Annotations Container */}
+      {currentFileId && activeTab === 'spectrogram' && (
+        <div className="annotations-container">
+          <h3>Annotations</h3>
+          <p>Add your annotations here...</p>
+          {/* Add annotation functionality here */}
+        </div>
+      )}
+
       {/* Saved Files Section */}
       <SavedFiles
         savedFiles={savedFiles}

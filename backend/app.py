@@ -64,7 +64,7 @@ def create_app():
         meta_file_id = fs.put(metafile.read(), filename=f"{original_name}.sigmf-meta")
 
         # Store metadata file ID in file_records
-        file_data = FileData(original_name, sigmf_metadata, pxx_csv_file_id, plot_ids)
+        file_data = FileData(original_name, sigmf_metadata, pxx_csv_file_id, plot_ids, freqs, bins)
         file_data.meta_file_id = meta_file_id  # Save metadata file ID
         file_record_id = db.file_records.insert_one(file_data.__dict__).inserted_id
 
@@ -73,7 +73,10 @@ def create_app():
         return jsonify({
             'spectrogram': encoded_spectrogram,
             'file_id': str(file_record_id),
-            'message': 'All files uploaded and saved successfully'
+            'message': 'All files uploaded and saved successfully',
+            'max_time': file_data.max_time,
+            'min_freq': file_data.min_freq,
+            'max_freq': file_data.max_freq,
         })
 
     def generate_plots(original_name, iq_data, sigmf_metadata):
