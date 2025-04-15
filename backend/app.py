@@ -226,6 +226,27 @@ def create_app():
 
         except Exception as e:
             return jsonify({"error": str(e)}), 500
+        
+    @app.route('/save-file', methods=['POST'])
+    def save_file():
+        try:
+            data = request.json
+            file_id = data.get('file_id')
+            annotations = data.get('annotations', [])
+
+            if not file_id:
+                return jsonify({"error": "File ID is required"}), 400
+
+            # Update the file record with annotations
+            db.file_records.update_one(
+                {"_id": ObjectId(file_id)},
+                {"$set": {"annotations": annotations}}
+            )
+
+            return jsonify({"message": "File saved successfully"})
+        except Exception as e:
+            print(f"Error saving file: {e}")
+            return jsonify({"error": str(e)}), 500
 
     @app.route('/files', methods=['GET'])
     def get_files():
@@ -332,6 +353,36 @@ def create_app():
         }
 
         return jsonify(metadata)
+    
+    @app.route('/file/<file_id>/data', methods=['GET'])
+    def get_file_data(file_id):
+        """Fetches fileData for a given file ID."""
+        try:
+            if not ObjectId.is_valid(file_id):
+                return jsonify({'error': 'Invalid file ID format'}), 400
+
+            file_record = db.file_records.find_one({"_id": ObjectId(file_id)})
+            if not file_record:
+                return jsonify({'error': 'File not found'}), 404
+            
+            if "max_time" not in file_record:
+                return jsonify({'error': 'max_time not found in record'}), 400
+            if "min_freq" not in file_record:
+                return jsonify({'error': 'min_freq not found in record'}), 400
+            if "max_freq" not in file_record:
+                return jsonify({'error': 'max_freq not found in record'}), 400
+
+            # Return relevant fields from fileData
+            return jsonify({
+                'max_time': file_record.get('max_time'),
+                'min_freq': file_record.get('min_freq'),
+                'max_freq': file_record.get('max_freq'),
+                'annotations': file_record.get('annotations', [])  # Include annotations
+
+            })
+        except Exception as e:
+            print(f"Error fetching file data: {str(e)}")
+            return jsonify({'error': str(e)}), 500
 
     def generate_data(rows, cols, num_transmitters, transmitter_mean, transmitter_sd, noise_mean, noise_sd, bandwidth, active_time, placement_method):
         """Creates the spectrogram plot for the generated data"""

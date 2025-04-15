@@ -832,15 +832,21 @@
     }
     
     .vertical-cursor .cursor-label {
-      top: -20px; /* Position above the vertical cursor */
-      left: 50%;
+      position: absolute;
+      top: 0px; /* Adjust this value to move the label slightly lower */
+      left: -50%; /* Center the label horizontally */
       transform: translateX(-50%);
+      padding: 2px 4px; /* Optional: Add padding for better readability */
+      font-size: 12px; /* Adjust font size if needed */
+      border-radius: 4px; /* Optional: Add rounded corners */
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2); /* Optional: Add a shadow for better contrast */
     }
     
     .horizontal-cursor .cursor-label {
       left: -50px; /* Position to the left of the horizontal cursor */
       top: 50%;
       transform: translateY(-50%);
+      left:0px
     }
 
     /* ========================================
@@ -848,16 +854,14 @@
      ======================================== */
 
      .annotations-container {
-      background-color: #fff;
-      padding: 1.5rem;
+      padding: 1rem;
+      background-color: #f9f9f9;
       border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      margin-bottom: 20px; /* Add space below the container */
     }
     
     .annotations-container h3 {
       margin: 0 0 10px;
-      font-size: 18px;
+      font-size: 24px;
       font-weight: bold;
       color: #333;
     }
@@ -867,5 +871,184 @@
       font-size: 14px;
       color: #555;
     }
-
     
+    .annotation-creation-box {
+      background-color: #eaeaea; /* Slightly darker background */
+      padding: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: flex;
+      gap: 20px; /* Space between the red box and inputs */
+      align-items: flex-start; /* Align items at the top */
+    }
+    
+    /* Red-bordered rectangle for annotation preview */
+    .annotation-preview {
+      position: relative;
+      width: 150px;
+      height: 100px;
+      border: 2px solid red;
+    }
+    
+    /* Corner labels for the red-bordered rectangle */
+    .corner-label {
+      position: absolute;
+      font-size: 8px;
+      background-color: white;
+      padding: 2px 4px;
+      border-radius: 4px;
+    }
+    
+    .corner-label.top-left {
+      top: -10px;
+      left: -10px;
+    }
+    
+    .corner-label.top-right {
+      top: -10px;
+      right: -10px;
+    }
+    
+    .corner-label.bottom-left {
+      bottom: -10px;
+      left: -10px;
+    }
+    
+    .corner-label.bottom-right {
+      bottom: -10px;
+      right: -10px;
+    }
+    
+    /* Inputs and Button Layout */
+    .annotation-inputs {
+      display: flex;
+      flex: 1;
+      gap: 10px; /* Space between inputs and the button */
+    }
+    
+    .inputs-container {
+      display: flex;
+      flex-direction: column;
+      flex: 1; /* Take up available space */
+      gap: 10px; /* Space between label and comment inputs */
+    }
+    
+    .annotation-label-input {
+      padding: 5px 10px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    
+    .annotation-label-input,
+    .annotation-comment-input {
+      font-family: Arial, sans-serif; /* Set a consistent font */
+      font-size: 14px; /* Set a consistent font size */
+      padding: 5px 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      color: #333; /* Ensure consistent text color */
+    }
+
+    .annotation-label-input::placeholder,
+    .annotation-comment-input::placeholder {
+      font-family: Arial, sans-serif; /* Match the font for placeholders */
+      font-size: 14px; /* Match the font size for placeholders */
+      color: #888; /* Optional: Set a placeholder color */
+    }
+    
+    .create-annotation-btn {
+      padding: 10px 15px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      align-self: flex-start; /* Align button to the top */
+    }
+    
+    .create-annotation-btn:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+
+    /* Saved Annotations Section */
+    .saved-annotations-container {
+      margin-top: 20px;
+      background-color: #fff;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .saved-annotations-container h3 {
+      margin-bottom: 10px;
+      font-size: 20px;
+      font-weight: bold;
+      color: #333;
+    }
+    
+    /* Annotations Table */
+    .annotations-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+    
+    .annotations-table th,
+    .annotations-table td {
+      padding: 10px;
+      border-bottom: 1px solid #ccc; /* Thin gray line */
+    }
+    
+    .annotations-table th {
+      background-color: #f9f9f9;
+      color: #555;
+      font-size: 14px;
+      font-weight: normal;
+    }
+    
+    .annotations-table td {
+      font-size: 14px;
+      color: #333;
+    }
+    
+    /* Delete Button */
+    .delete-annotation-btn {
+      padding: 5px 10px;
+      background-color: red;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    
+    .delete-annotation-btn:hover {
+      background-color: #c82333;
+    }
+
+    .annotations-table th,
+    .annotations-table td {
+      padding: 10px;
+      border-bottom: 1px solid #ccc; /* Thin gray line */
+    }
+
+    .annotations-table th {
+      background-color: #f9f9f9;
+      color: #555;
+      font-size: 14px;
+      font-weight: normal;
+      text-align: left;
+    }
+
+    .annotations-table td {
+      font-size: 14px;
+      color: #333;
+    }
+
+    .annotations-table input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
