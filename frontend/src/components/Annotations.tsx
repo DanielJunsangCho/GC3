@@ -21,6 +21,8 @@ interface AnnotationsProps {
     createAnnotation: () => void;
     deleteAnnotation: (annotationId: string) => void;
     toggleAnnotationDisplay: (annotationId: string, isChecked: boolean) => void;
+    showCursors: boolean; // Add showCursors
+    setShowCursors: (value: boolean) => void; // Add setShowCursors
   }
 
 const formatFrequency = (frequency: number | null): string => {
@@ -47,10 +49,23 @@ const Annotations: React.FC<AnnotationsProps> = ({
   createAnnotation,
   deleteAnnotation,
   toggleAnnotationDisplay,
+  showCursors,
+  setShowCursors,
 }) => {
   return (
     <div className="annotations-container">
         <h3>Annotations</h3>
+        <div className="toggle-cursors">
+            <label className="toggle-switch">
+                <input
+                type="checkbox"
+                checked={showCursors}
+                onChange={(e) => setShowCursors(e.target.checked)}
+                />
+                <span className="slider"></span>
+            </label>
+            <span>{showCursors ? "Cursors On" : "Cursors Off"}</span>
+        </div>
 
         {/* Annotation Creation Section */}
         <div className="annotation-creation-box">

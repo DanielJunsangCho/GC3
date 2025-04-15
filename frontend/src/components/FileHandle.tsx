@@ -741,7 +741,9 @@ const FileHandle: React.FC<FileHandleProps> = ({ fileId, onFileSelect }) => {
           setAnnotationComment={setAnnotationComment}
           createAnnotation={createAnnotation}
           deleteAnnotation={deleteAnnotation}
-          toggleAnnotationDisplay={toggleAnnotationDisplay} // Pass the function as a prop
+          toggleAnnotationDisplay={toggleAnnotationDisplay}
+          showCursors={showCursors} 
+          setShowCursors={setShowCursors} 
         />
       )}
   
