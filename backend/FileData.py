@@ -1,14 +1,14 @@
 """
- CS-410: FileData class that stores file level information about uploaded data file
- @file FileData.py
- @authors Jun Cho, Will Cho, Grace Johnson, Connor Whynott
- @collaborators None
+CS-410: FileData class that stores file level information about uploaded data file
+@file FileData.py
+@authors Jun Cho, Will Cho, Grace Johnson, Connor Whynott
+@collaborators None
 """
 
 import SigMF
 
 class FileData:
-    def __init__(self, original_name, sigmf_metadata, pxx_csv_file_id, plot_ids, freqs, bins, fft=1024):
+    def __init__(self, original_name, sigmf_metadata, pxx_csv_file_id, plot_ids, fft=1024, airview_annotations=None):
         """
         Initializes FileData object.
         :param original_name: Original filename without extension
@@ -18,6 +18,7 @@ class FileData:
         :param bins: Array of time bins for the spectrogram
         :param freqs: Array of frequency bins for the spectrogram
         :param fft: FFT size for spectrogram processing (default: 1024)
+        :param annotations: Optional list of annotations from AirVIEW
         """
         self.filename = original_name
         self.max_time = bins[-1]
@@ -37,3 +38,5 @@ class FileData:
         # Additional metadata
         self.sigmf = sigmf_metadata.__dict__
         self.fft = fft
+
+        self.airview_annotations = airview_annotations if airview_annotations is not None else []

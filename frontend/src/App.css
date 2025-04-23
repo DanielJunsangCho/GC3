@@ -46,12 +46,13 @@
   .app-logo {
     max-height: 100px;
     width: auto;
+    padding-top: 10px;
     padding-bottom: 10px;
   }
   
   .generate-button {
     position: absolute;
-    top: 35%;
+    top: 39%;
     right: 3%;
     padding: 10px 20px;
     font-size: 1rem;
@@ -66,6 +67,28 @@
   
   .generate-button:hover {
     background-color: #0056b3;
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+  }
+  
+  .github-link {
+    margin-right: 15px;
+  }
+  
+  .github-logo {
+    width: 32px;
+    height: 32px;
+    transition: opacity 0.2s;
+    top: 39%;
+    left: 3%;
+    position: absolute;
+  }
+  
+  .github-logo:hover {
+    opacity: 0.8;
   }
   
   /* ========================================
@@ -134,10 +157,59 @@
     background-color: #0056b3;
   }
   
+  .tab-select {
+    background-color: white;
+    border-color: #ccc;
+    font-size: 1rem;
+  }
+  
+  .tab-select:focus {
+    outline: none;
+    border-color: #3182ce;
+  }
+  
+  
   /* ========================================
      5. COMPONENT CONTAINER STYLES
      ======================================== */
   
+     .flex-wrapper {
+      display: flex;
+      gap: 1rem; /* spacing between containers */
+      align-items: stretch; /* makes all children same height */
+    }
+    
+    /* Statistics container */
+    .statistics-container {
+      width: 30%;
+      min-width: 250px;
+      max-height: 1200px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+    
+      background: #f8f9fa;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      display: flex;
+      flex-direction: column;
+    }
+    
+    /* File handle container */
+    .file-handle-container {
+      flex-grow: 1;
+      min-height: 400px;
+      max-height: 1200px;
+    
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+    }
+    
+
   .statistics-container {
     width: 30%;
     min-width: 250px;
@@ -146,7 +218,6 @@
     border-radius: 5px;
     overflow-y: auto;
     white-space: pre-wrap;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -163,7 +234,7 @@
     background-color: #ffffff;
     padding: 20px;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -262,7 +333,7 @@
     background-color: #fff;
     padding: 1.5rem;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   }
   
   .saved-files ul {
@@ -351,7 +422,7 @@
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 12px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   }
   
   .search-bar:focus {
@@ -378,7 +449,13 @@
     cursor: pointer;
     transition: background-color 0.3s;
   }
-  
+
+  .airview-btn {
+    background-color: #cc0005;
+    color: white;
+  }
+  .airview-btn:hover {background-color: #d52727;}
+
   .upload-btn {
     background-color: #4caf50;
     color: white;
@@ -492,7 +569,7 @@
     background: white;
     padding: 1.5rem 2rem;
     border-radius: 12px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     flex: 1 1 45%;
     min-width: 300px;
     box-sizing: border-box;
@@ -565,8 +642,9 @@
   .popup-content, .spectrogram-popup-content {
     background-color: #fff;
     padding: 25px;
+    padding-top: 15px;
     border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     position: relative;
     z-index: 999;
     height: 80vh !important;
@@ -579,7 +657,6 @@
     margin-bottom: 10px;
   }
   
-  /* Combined the duplicate dual-popup-container selectors */
   .dual-popup-container {
     display: flex;
     flex-direction: row;
@@ -602,28 +679,24 @@
   }
   
   .spectrogram-popup-content {
-    background-color: #fff;
-    padding: 25px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     width: 700px !important;
     min-width: 700px;
     max-width: 95%;
     max-height: 90vh;
-    overflow-y: auto;
-    position: relative;
-    z-index: 999;
+    padding-top: 15px;
   }
   
   .popup-header, .spectrogram-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 15px;
-    padding-bottom: 10px;
+    margin-bottom: 5px;
+    margin-top: 0px;
+    padding-top: 5px;
+    padding-bottom: 5px;
     border-bottom: 2px solid #eee;
     position: relative;
-    height: 30px;
+    height: 35px;
   }
   
   .popup-header h4, .spectrogram-header h4 {
@@ -631,17 +704,19 @@
     font-size: 18px;
     color: #333;
     padding-right: 30px;
+    height: 24px;
+    line-height: 24px;
   }
   
-  .close-button {
+  .spec-close-button {
     background: transparent;
     border: none;
-    font-size: 18px;
+    font-size: 17px;
     font-weight: bold;
     cursor: pointer;
     color: #666;
     position: absolute;
-    top: 0;
+    top: 6px;
     right: 0;
     width: 30px;
     height: 30px;
@@ -652,6 +727,54 @@
     margin: 0;
     padding: 0;
   }
+
+  .data-close-button {
+    background: transparent;
+    border: none;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #666;
+    position: absolute;
+    top: -3px;
+    right: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10001;
+    margin: 0;
+    padding: 0;
+  }
+
+.download-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 0px;
+}
+
+.download-btn {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  transition: background-color 0.3s ease-in-out;
+}
+
+.download-btn:hover {
+  background-color: #218838;
+}
+
+.download-btn::before {
+  margin-right: 8px;
+  font-size: 16px;
+}
   
   /* ========================================
      12. FORM STYLES
@@ -726,9 +849,12 @@
     justify-content: center;
     align-items: center;
     overflow: hidden;
-    margin-top: 10px;
     width: 100%;
-    height: 74vh
+    height: auto;
+    min-height: 300px;
+    max-height: 74vh;
+    padding-top: 40px;
+    padding-bottom: 40px;
   }
   
   .spectrogram-image {
@@ -1106,3 +1232,78 @@
     input:checked + .slider:before {
       transform: translateX(20px);
     }
+
+  /* container for the two vertical switches + params box */
+.switch-panel {
+  display: flex;
+  align-items: flex-start;
+  gap: 2rem;           /* space between switches and params */
+  margin-top: 1rem;    /* lift it a bit from the upload button */
+}
+
+/* stack the two on/off switches */
+.toggle-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+
+  .toggle-group {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  
+  .toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+  }
+  .toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  .toggle-switch .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #ccc;
+    transition: .3s;
+    border-radius: 24px;
+  }
+  .toggle-switch .slider:before {
+    position: absolute;
+    content: "";
+    height: 18px; width: 18px;
+    left: 3px; bottom: 3px;
+    background-color: white;
+    transition: .3s;
+    border-radius: 50%;
+  }
+  .toggle-switch input:checked + .slider {
+    background-color: #4caf50;
+  }
+  .toggle-switch input:checked + .slider:before {
+    transform: translateX(20px);
+  }
+  
+  /* style for the params fieldset */
+.param-box {
+  border: 1px solid #ddd;
+  padding: 0.75rem;
+  min-width: 200px;
+}
+.param-box legend {
+  font-size: 0.9rem;
+}
+.param-form {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+.param-form input[type="number"] { width: 4ch; padding: 2px 4px; }

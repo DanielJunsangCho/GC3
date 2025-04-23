@@ -1,16 +1,19 @@
-/**
- * CS-410: Statistics Bar Component.
- * @file Statistics.tsx
- * @authors Jun Cho, Will Cho, Grace Johnson, Connor Whynott
- * @collaborators None
- * @description This component is used to display the statistics for the spectrogram.
- */
-
 import React, { useState, useEffect } from 'react';
+import Select from 'react-select';
+
+
+const tabOptions = [
+  { value: 'metadata', label: 'Metadata Statistics' },
+  { value: 'calculated', label: 'Receiver Properties' },
+  { value: 'transmission', label: 'Transmission Statistics' },
+];
+
 
 interface StatisticsProps {
   fileId: string | null;
+  annotations?: any[];
 }
+
 
 interface MetadataType {
   sample_rate?: number;
@@ -31,17 +34,20 @@ const MetadataSection: React.FC<{ title: string; items: [string, any][] }> = ({ 
       {items.map(([key, value]) => (
         <div className="metadata-item" key={key}>
           <span className="metadata-key">{key}:</span>
-          <span className="metadata-value">{value}</span>
+          <span className="metadata-value">{value ?? 'N/A'}</span>
         </div>
       ))}
     </div>
   </div>
 );
 
-const Statistics: React.FC<StatisticsProps> = ({ fileId }) => {
+const Statistics: React.FC<StatisticsProps> = ({ fileId, annotations }) => {
   const [metadata, setMetadata] = useState<MetadataType | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<string>('metadata');
+  const [calculatedStats, setCalculatedStats] = useState<Record<string, any> | null>(null);
+  const [transmissionStats, setTransmissionStats] = useState<any[] | null>(null);
 
   useEffect(() => {
     if (!fileId) {
@@ -71,8 +77,79 @@ const Statistics: React.FC<StatisticsProps> = ({ fileId }) => {
     };
 
     fetchMetadata();
-  }, [fileId]);
+    const fetchCalculatedStats = async () => {
+      try {
+        const response = await fetch(`http://127.0.0.1:5000/file/${fileId}/calculated_statistics`);
+        const result = await response.json();
+    
+        console.log("Received calculated stats:", result); // ✅ DEBUG HERE
+    
+        if (!result.error) {
+          setCalculatedStats(result);
+        }
+      } catch (err) {
+        console.error('Error fetching calculated statistics:', err);
+      }
+    };
+    fetchCalculatedStats();  
+    if (annotations && annotations.length > 0) {
+      console.log("Setting transmission stats from props:", annotations);
+      setTransmissionStats(annotations);
+    } else {
+      const fetchTransmissionStats = async () => {
+        try {
+          const response = await fetch(`http://127.0.0.1:5000/file/${fileId}/airview`);
+          const result = await response.json();
+    
+          console.log("[Frontend] Fallback fetched AirVIEW annotations:", result.annotations);
+    
+          if (result.annotations && Array.isArray(result.annotations)) {
+            setTransmissionStats(result.annotations);
+          }
+        } catch (err) {
+          console.error("Failed to fetch AirVIEW results:", err);
+        }
+      };
+      fetchTransmissionStats();
+    }
+  }, [annotations, fileId]);
 
+
+  const formatTransmissionStats = (data: any[]) => {
+    const fields: [string, any][][] = data.map((annotation, index) => ([
+      ['Transmitter #', index + 1],
+      ['Frequency Lower Edge (Hz)', annotation['core:freq_lower_edge']],
+      ['Frequency Upper Edge (Hz)', annotation['core:freq_upper_edge']],
+      ['Sample Start', annotation['core:sample_start']],
+      ['Sample Count', annotation['core:sample_count']],
+      ['Label', annotation['core:label']]
+    ]));
+  
+    return (
+      <div className="metadata-container">
+        {fields.map((group, idx) => (
+          <MetadataSection key={idx} title={`Transmission ${idx + 1}`} items={group} />
+        ))}
+      </div>
+    );
+  };
+  
+
+  const formatCalculatedStats = (data: Record<string, any>) => {
+    const fields: [string, any][] = [
+      ['Sample Rate', `${Number(data.sampling_frequency).toLocaleString()} Hz`],
+      ['FFT', data.fft_size],
+      ['Row Duration', `${data.row_duration.toExponential(2)} s`],
+      ['Frequency Resolution', `${data.frequency_resolution.toFixed(2)} Hz`]
+    ];
+  
+    return (
+      <div className="metadata-container">
+        <MetadataSection title="Receiver Properties" items={fields} />
+      </div>
+    );
+  };
+  
   const formatMetadata = (data: MetadataType) => {
     const administrativeFields: [string, any][] = [
       ['Author', data.author],
@@ -82,8 +159,8 @@ const Statistics: React.FC<StatisticsProps> = ({ fileId }) => {
     ];
 
     const technicalFields: [string, any][] = [
-      ['Sample Rate', `${Number(data.sample_rate).toLocaleString()} Hz`],
-      ['Center Frequency', `${Number(data.center_frequency).toLocaleString()} Hz`],
+      ['Sample Rate', data.sample_rate ? `${Number(data.sample_rate).toLocaleString()} Hz` : 'N/A'],
+      ['Center Frequency', data.center_frequency ? `${Number(data.center_frequency).toLocaleString()} Hz` : 'N/A'],
       ['Data Type', data.datatype],
       ['Sample Start', data.sample_start],
       ['Offset', data.offset],
@@ -96,19 +173,72 @@ const Statistics: React.FC<StatisticsProps> = ({ fileId }) => {
       </div>
     );
   };
+  
+
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'metadata':
+        return metadata ? formatMetadata(metadata) : <p className="no-file-message">No metadata available.</p>;
+      case 'calculated':
+        return calculatedStats
+          ? formatCalculatedStats(calculatedStats)
+          : <p className="placeholder-message">No statistics calculated.</p>;
+          
+      case 'transmission':
+        return transmissionStats && transmissionStats.length > 0
+          ? formatTransmissionStats(transmissionStats)
+          : <p className="placeholder-message">No transmissions detected.</p>;
+      default:
+        return null;
+    }
+  };
 
   return (
     <div className="statistics-container">
-      <h2 className="statistics-header">Metadata Information</h2>
-      {loading ? (
-        <p className="loading-message">Loading metadata...</p>
-      ) : error ? (
-        <p className="error-message">{error}</p>
-      ) : metadata ? (
-        formatMetadata(metadata)
-      ) : (
-        <p className="no-file-message">No file selected</p>
-      )}
+      <h2 className="statistics-header">Information</h2>
+
+      <div className="mb-6 w-full max-w-md min-w-[250px]">
+        <Select
+          inputId="tab-select"
+          options={tabOptions}
+          defaultValue={tabOptions.find((option) => option.value === activeTab)}
+          onChange={(selectedOption) => setActiveTab(selectedOption?.value || 'current')}
+          menuPortalTarget={document.body}
+          menuPosition="fixed"
+          styles={{
+            control: (base) => ({
+              ...base,
+              width: '100%',
+              borderRadius: '0.5rem',
+              borderColor: '#d1d5db',
+              padding: '2px',
+              boxShadow: 'none',
+              '&:hover': { borderColor: '#3b82f6' },
+            }),
+            menuPortal: (base) => ({ ...base, zIndex: 9999 }), // important for visibility
+            option: (base, { isFocused, isSelected }) => ({
+              ...base,
+              backgroundColor: isSelected
+                ? '#3b82f6'
+                : isFocused
+                ? '#e0e7ff'
+                : undefined,
+              color: isSelected ? 'white' : 'black',
+              cursor: 'pointer',
+            }),
+          }}
+        />
+      </div>
+
+      <div className="tab-content">
+        {loading ? (
+          <p className="loading-message">Loading metadata...</p>
+        ) : error ? (
+          <p className="error-message">{error}</p>
+        ) : (
+          renderTabContent()
+        )}
+      </div>
     </div>
   );
 };

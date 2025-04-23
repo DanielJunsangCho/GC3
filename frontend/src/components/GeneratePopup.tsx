@@ -121,7 +121,7 @@ const GeneratePopup: React.FC<GeneratePopupProps> = ({ onClose, onGenerate }) =>
     <div className="popup-content">
       <div className="popup-header">
         <h4>Generate Data</h4>
-        <button className="close-button" onClick={onClose}>×</button>
+        <button className="data-close-button" onClick={onClose}>×</button>
       </div>
       <form onSubmit={handleSubmit}>
         {error && (

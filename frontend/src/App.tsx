@@ -17,11 +17,18 @@ function App() {
     setPlot(plot);
   };
 
+  const repoUrl = "https://github.com/DanielJunsangCho/GC3";
+
   return (
     <main className="enhanced-app-container">
       {/* Application Header */}
       <header className="app-header">
-        <img src="/images/GC3 Logo.png" alt="GC3 Logo" className="app-logo" />
+        <div className="header-left">
+          <a href={repoUrl} target="_blank" rel="noopener noreferrer" className="github-link">
+            <img src="images/github-logo.png" alt="GitHub Repository" className="github-logo" />
+          </a>
+          <img src="images/GC3-logo.png" alt="GC3 Logo" className="app-logo" />
+        </div>
         <Generate onPlotGenerated={handlePlotGenerated} />
       </header>
 
