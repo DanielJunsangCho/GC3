@@ -10,6 +10,7 @@ import { useState, useEffect, ChangeEvent, useRef } from 'react';
 import '../App.css';
 import SavedFiles from './SavedFiles';
 import Annotations from './Annotations';
+import { Annotation } from './Annotations';
 
 interface SavedFile {
   _id: string;
@@ -20,14 +21,6 @@ interface SavedFile {
 interface FileHandleProps {
   fileId: string | null;
   onFileSelect: (fileId: string | null, annotations?: any[]) => void;
-}
-
-interface Annotation {
-  id: string;
-  corners: { freq1: number; time1: number; freq2: number; time2: number };
-  label: string;
-  comment: string;
-  display: boolean;
 }
 
 const FileHandle: React.FC<FileHandleProps> = ({ fileId, onFileSelect }) => {
@@ -191,6 +184,8 @@ const FileHandle: React.FC<FileHandleProps> = ({ fileId, onFileSelect }) => {
         setMaxFreq(result.max_freq);
         setMinFreq(result.min_freq);
       }
+      
+      setAnnotations([]);
   
       // Immediately set spectrogram image
       if (result.spectrogram) {

@@ -1,6 +1,6 @@
 import React from 'react';
 
-interface Annotation {
+export interface Annotation {
   id: string;
   corners: { freq1: number; time1: number; freq2: number; time2: number };
   label: string;
