@@ -22,6 +22,14 @@ interface FileHandleProps {
   onFileSelect: (fileId: string | null, annotations?: any[]) => void;
 }
 
+interface Annotation {
+  id: string;
+  corners: { freq1: number; time1: number; freq2: number; time2: number };
+  label: string;
+  comment: string;
+  display: boolean;
+}
+
 const FileHandle: React.FC<FileHandleProps> = ({ fileId, onFileSelect }) => {
   // State variables
   const [verticalCursors, setVerticalCursors] = useState<number[]>([50, 150]); // Default positions for vertical cursors
@@ -132,24 +140,17 @@ const FileHandle: React.FC<FileHandleProps> = ({ fileId, onFileSelect }) => {
       const formData = new FormData();
       formData.append('cfile', selectedCFile);
       formData.append('metaFile', selectedMetaFile);
-  
-      const response = await fetch('http://127.0.0.1:5000/upload', { method: 'POST', body: formData });
-      const result = await response.json();
-  
+
+      // ✅ Append these BEFORE sending the request
       formData.append('runAirview', runAirview ? 'true' : 'false');
       formData.append('downloadCSV', downloadCSV ? 'true' : 'false');
-
-      // new:
       formData.append('autoParams', autoParams ? 'true' : 'false');
       if (!autoParams) {
         formData.append('beta',  manualBeta.toString());
         formData.append('scale', manualScale.toString());
       }
-
-      const response = await fetch('http://127.0.0.1:5000/upload', {
-        method: 'POST',
-        body: formData
-      });
+  
+      const response = await fetch('http://127.0.0.1:5000/upload', { method: 'POST', body: formData });
       const result = await response.json();
 
       setStatusMessage(
@@ -362,7 +363,6 @@ const FileHandle: React.FC<FileHandleProps> = ({ fileId, onFileSelect }) => {
       console.error("Error loading file:", error);
       setStatusMessage('Failed to load file.');
     }
-  };
     fetchPlots(fileId);
   
     try {
@@ -908,5 +908,4 @@ const FileHandle: React.FC<FileHandleProps> = ({ fileId, onFileSelect }) => {
     </main>
   );
 }
-
 export default FileHandle;

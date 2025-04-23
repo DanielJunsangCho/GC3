@@ -79,6 +79,7 @@ def create_app():
             scale = scale_manual
         )
         if run_airview:
+            print("RUNNING AIRVIEW")
             result = plugin.run(iq_data)
             if auto_params:
                 # AirVIEW returns the best [beta, scale]
@@ -93,6 +94,7 @@ def create_app():
 
         plot_ids, Pxx, freqs, bins = generate_plots(original_name, iq_data, sigmf_metadata)
         if run_download:
+            print("RUNNING DOWNLOAD")
             pxx_csv_file_id = save_pxx_csv(original_name, Pxx, freqs, bins)
         else:
             pxx_csv_file_id = None
@@ -130,9 +132,9 @@ def create_app():
         from bson import ObjectId
         # find our record
         rec = db.file_records.find_one({"_id": ObjectId(file_id)})
-        if not rec or "csv_file_id" not in rec:
-            return jsonify({"error":"CSV not found"}), 404
-
+        csv_file_id = rec.get("csv_file_id")
+        if not csv_file_id or not ObjectId.is_valid(str(csv_file_id)):
+            return jsonify({"error": "CSV not found or invalid ID"}), 404
         try:
             grid_out = fs.get(ObjectId(rec["csv_file_id"]))
             csv_bytes = grid_out.read()
