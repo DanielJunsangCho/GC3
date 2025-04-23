@@ -8,7 +8,7 @@ CS-410: FileData class that stores file level information about uploaded data fi
 import SigMF
 
 class FileData:
-    def __init__(self, original_name, sigmf_metadata, pxx_csv_file_id, plot_ids, freqs, bins, fft=1024, airview_annotations=None):
+    def __init__(self, original_name, sigmf_metadata, pxx_csv_file_id, plot_ids, freqs, bins, fft=1024, airview_annotations=None, beta_used=None, scale_used=None):
         """
         Initializes FileData object.
         :param original_name: Original filename without extension
@@ -40,3 +40,5 @@ class FileData:
         self.fft = fft
 
         self.airview_annotations = airview_annotations if airview_annotations is not None else []
+        self.beta_used = beta_used
+        self.scale_used = scale_used

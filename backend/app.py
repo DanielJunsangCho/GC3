@@ -104,7 +104,18 @@ def create_app():
         meta_file_id = fs.put(metafile.read(), filename=f"{original_name}.sigmf-meta")
 
         # Store metadata file ID in file_records
-        file_data = FileData(original_name, sigmf_metadata, pxx_csv_file_id, plot_ids, freqs, bins, 1024, airview_annotations)
+        file_data = FileData(
+            original_name,
+            sigmf_metadata,
+            pxx_csv_file_id,
+            plot_ids,
+            freqs,
+            bins,
+            1024,
+            airview_annotations,
+            trained_beta,
+            trained_scale
+        )
         file_data.meta_file_id = meta_file_id  # Save metadata file ID
         file_data.airview_annotations = airview_annotations  # Save annotations
         file_record_id = db.file_records.insert_one(file_data.__dict__).inserted_id
@@ -467,8 +478,9 @@ def create_app():
                 'max_time': file_record.get('max_time'),
                 'min_freq': file_record.get('min_freq'),
                 'max_freq': file_record.get('max_freq'),
-                'annotations': file_record.get('annotations', [])  # Include annotations
-
+                'annotations': file_record.get('airview_annotations', []),
+                'beta_used': file_record.get('beta_used'),
+                'scale_used': file_record.get('scale_used')
             })
         except Exception as e:
             print(f"Error fetching file data: {str(e)}")
