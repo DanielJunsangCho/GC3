@@ -102,7 +102,7 @@ def create_app():
         meta_file_id = fs.put(metafile.read(), filename=f"{original_name}.sigmf-meta")
 
         # Store metadata file ID in file_records
-        file_data = FileData(original_name, sigmf_metadata, pxx_csv_file_id, plot_ids, airview_annotations)
+        file_data = FileData(original_name, sigmf_metadata, pxx_csv_file_id, plot_ids, freqs, bins, 1024, airview_annotations)
         file_data.meta_file_id = meta_file_id  # Save metadata file ID
         file_data.airview_annotations = airview_annotations  # Save annotations
         file_record_id = db.file_records.insert_one(file_data.__dict__).inserted_id
@@ -113,8 +113,11 @@ def create_app():
 
         return jsonify({
             'spectrogram': encoded_spectrogram,
-            'file_id':    str(file_record_id),
-            'message':    'All files uploaded and saved successfully',
+            'file_id': str(file_record_id),
+            'message': 'All files uploaded and saved successfully',
+            'max_time': file_data.max_time,
+            'min_freq': file_data.min_freq,
+            'max_freq': file_data.max_freq,
             'annotations':       airview_annotations,
             'beta_used':         trained_beta,
             'scale_used':        trained_scale
@@ -293,6 +296,27 @@ def create_app():
 
         except Exception as e:
             return jsonify({"error": str(e)}), 500
+        
+    @app.route('/save-file', methods=['POST'])
+    def save_file():
+        try:
+            data = request.json
+            file_id = data.get('file_id')
+            annotations = data.get('annotations', [])
+
+            if not file_id:
+                return jsonify({"error": "File ID is required"}), 400
+
+            # Update the file record with annotations
+            db.file_records.update_one(
+                {"_id": ObjectId(file_id)},
+                {"$set": {"annotations": annotations}}
+            )
+
+            return jsonify({"message": "File saved successfully"})
+        except Exception as e:
+            print(f"Error saving file: {e}")
+            return jsonify({"error": str(e)}), 500
 
     @app.route('/files', methods=['GET'])
     def get_files():
@@ -417,6 +441,37 @@ def create_app():
         }
 
         return jsonify(metadata)
+    
+    @app.route('/file/<file_id>/data', methods=['GET'])
+    def get_file_data(file_id):
+        """Fetches fileData for a given file ID."""
+        try:
+            if not ObjectId.is_valid(file_id):
+                return jsonify({'error': 'Invalid file ID format'}), 400
+
+            file_record = db.file_records.find_one({"_id": ObjectId(file_id)})
+            if not file_record:
+                return jsonify({'error': 'File not found'}), 404
+            
+            if "max_time" not in file_record:
+                return jsonify({'error': 'max_time not found in record'}), 400
+            if "min_freq" not in file_record:
+                return jsonify({'error': 'min_freq not found in record'}), 400
+            if "max_freq" not in file_record:
+                return jsonify({'error': 'max_freq not found in record'}), 400
+
+            # Return relevant fields from fileData
+            return jsonify({
+                'max_time': file_record.get('max_time'),
+                'min_freq': file_record.get('min_freq'),
+                'max_freq': file_record.get('max_freq'),
+                'annotations': file_record.get('annotations', [])  # Include annotations
+
+            })
+        except Exception as e:
+            print(f"Error fetching file data: {str(e)}")
+            return jsonify({'error': str(e)}), 500
+
     # NOTE: Visualization Limitation
     # The spectrogram visualization may not visibly reflect changes to noise_mean due to 
     # matplotlib's automatic color scaling. plt.imshow() automatically rescales the colormap
