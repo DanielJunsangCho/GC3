@@ -29,7 +29,7 @@ GC3 is a comprehensive web application for uploading, visualizing, and analyzing
 
 2. Install required Python packages:
    ```bash
-   pip install Flask flask-cors pymongo matplotlib numpy scipy pillow python-dotenv
+   pip install Flask flask-cors pymongo matplotlib numpy scipy pillow python-dotenv gunicorn
    ```
    
 ### Frontend Setup
